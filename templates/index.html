@@ -15,9 +15,16 @@
       <button type="submit">업로드 및 변환</button>
     </form>
 
-    <!-- 변환 결과 다운로드 버튼 -->
-    <div id="download-section" style="display: none;">
+    <!-- 변환 결과 섹션 -->
+    <div id="result-section" style="display: none;">
       <p>변환이 완료되었습니다!</p>
+      
+      <!-- 이미지 미리보기 -->
+      <div id="image-preview">
+        <img id="preview-image" src="" alt="변환된 PNG 미리보기">
+      </div>
+
+      <!-- 다운로드 버튼 -->
       <a id="download-link" href="#" download>
         <button>PNG 다운로드</button>
       </a>
