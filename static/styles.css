@@ -1,0 +1,74 @@
+/* 전체 배경과 폰트 설정 */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #e6f0fa; /* 페일 블루 배경 */
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* 메인 컨테이너 */
+.container {
+  background: #ffffff;
+  padding: 40px 50px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* 제목 */
+.container h1 {
+  margin-bottom: 30px;
+  color: #2c6db2;
+  font-size: 28px;
+}
+
+/* 업로드 폼 */
+#upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 파일 선택 input */
+#pdf-file {
+  padding: 10px;
+  border: 2px solid #bcd4ec;
+  border-radius: 8px;
+  background-color: #f7faff;
+  font-size: 16px;
+}
+
+/* 버튼 기본 스타일 */
+button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #357abd;
+}
+
+/* 다운로드 섹션 */
+#download-section {
+  margin-top: 30px;
+}
+
+#download-link button {
+  background-color: #50b8dc;
+}
+
+#download-link button:hover {
+  background-color: #3ba1c7;
+}
