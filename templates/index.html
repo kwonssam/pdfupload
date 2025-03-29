@@ -1,39 +1,27 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("upload-form");
-  const fileInput = document.getElementById("pdf-file");
-  const downloadSection = document.getElementById("download-section");
-  const downloadLink = document.getElementById("download-link");
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF to PNG 변환기</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>PDF를 PNG로 변환</h1>
+    <form id="upload-form">
+      <input type="file" id="pdf-file" accept="application/pdf">
+      <button type="submit">업로드 및 변환</button>
+    </form>
 
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault(); // 기본 폼 제출 방지
+    <div id="result-section" style="display:none;">
+      <h2>변환 완료!</h2>
+      <img id="preview-image" src="" alt="미리보기 이미지" style="max-width: 100%; margin-top: 20px;">
+      <a id="download-link" href="" download>
+        <button style="margin-top: 20px;">이미지 다운로드</button>
+      </a>
+    </div>
+  </div>
 
-    const file = fileInput.files[0];
-    if (!file) {
-      alert("PDF 파일을 선택해주세요.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("pdf_file", file);
-
-    try {
-      const response = await fetch("/convert", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("변환 중 오류가 발생했습니다.");
-      }
-
-      const result = await response.json();
-
-      // 다운로드 링크 업데이트
-      downloadLink.href = result.download_url;
-      downloadSection.style.display = "block";
-    } catch (err) {
-      console.error(err);
-      alert("파일 업로드 또는 변환에 실패했습니다.");
-    }
-  });
-});
+  <script src="/static/script.js"></script>
+</body>
+</html>
