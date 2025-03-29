@@ -6,13 +6,13 @@ import uuid
 
 app = Flask(__name__)
 
-# 업로드 및 출력 디렉터리 설정
+# 업로드/출력 디렉터리 설정
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'outputs'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 
-# 폴더 없으면 생성
+# 폴더가 없으면 생성
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
@@ -33,26 +33,27 @@ def convert_pdf():
     input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(input_path)
 
-    # UUID로 고유한 파일 이름 생성
+    # 출력 파일명 생성
     output_filename = f"{uuid.uuid4().hex}.png"
     output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
 
     try:
-        # 첫 페이지만 변환
+        # poppler_path가 필요한 경우 여기 명시
+        # 예: poppler_path=r'C:\Poppler\poppler-xx\bin' (Windows 사용자용)
         images = convert_from_path(input_path, dpi=200)
         images[0].save(output_path, 'PNG')
 
         return jsonify({'download_url': f'/outputs/{output_filename}'})
     except Exception as e:
-    print("PDF 변환 중 오류:", e)  # ← 콘솔에 오류 메시지 출력
-    return jsonify({'error': str(e)}), 500
+        print("PDF 변환 중 오류:", e)  # 콘솔 로그
+        return jsonify({'error': str(e)}), 500
 
-# 정적 파일 서빙 (변환된 이미지 접근용)
+# 변환된 이미지 제공
 @app.route('/outputs/<filename>')
 def serve_image(filename):
     return send_from_directory(app.config['OUTPUT_FOLDER'], filename)
 
-# 정적 리소스 설정 (styles.css, script.js)
+# 정적 리소스 제공 (JS, CSS 등)
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
