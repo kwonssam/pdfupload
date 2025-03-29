@@ -44,7 +44,8 @@ def convert_pdf():
 
         return jsonify({'download_url': f'/outputs/{output_filename}'})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    print("PDF 변환 중 오류:", e)  # ← 콘솔에 오류 메시지 출력
+    return jsonify({'error': str(e)}), 500
 
 # 정적 파일 서빙 (변환된 이미지 접근용)
 @app.route('/outputs/<filename>')
