@@ -22,28 +22,42 @@ def index():
 
 @app.route('/convert', methods=['POST'])
 def convert_pdf():
-    if 'pdf_file' not in request.files:
-        return jsonify({'error': '파일이 없습니다.'}), 400
-
-    file = request.files['pdf_file']
-    if file.filename == '':
-        return jsonify({'error': '파일명이 없습니다.'}), 400
-
-    filename = secure_filename(file.filename)
-    input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(input_path)
-
-    # UUID로 고유한 파일 이름 생성
-    output_filename = f"{uuid.uuid4().hex}.png"
-    output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-
     try:
-        # 첫 페이지만 변환
-        images = convert_from_path(input_path, dpi=200)
+        if 'pdf_file' not in request.files:
+            print("❌ 업로드된 파일이 없습니다.")
+            return jsonify({'error': '파일이 없습니다.'}), 400
+
+        file = request.files['pdf_file']
+        if file.filename == '':
+            print("❌ 파일명이 비어있습니다.")
+            return jsonify({'error': '파일명이 없습니다.'}), 400
+
+        filename = secure_filename(file.filename)
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(input_path)
+
+        print(f"📥 저장된 파일 경로: {input_path}")
+
+        # 고유한 출력 파일 이름 생성
+        output_filename = f"{uuid.uuid4().hex}.png"
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+
+        # Windows인 경우 poppler_path 꼭 지정
+        images = convert_from_path(
+            input_path,
+            dpi=200,
+            poppler_path=r"C:\poppler\Library\bin"  # 여기 실제 경로로 바꿔야 함!
+        )
+
+        print("🖼️ PDF → 이미지 변환 성공")
+
         images[0].save(output_path, 'PNG')
+        print(f"✅ PNG 저장 완료: {output_path}")
 
         return jsonify({'download_url': f'/outputs/{output_filename}'})
+    
     except Exception as e:
+        print("🚨 서버 에러 발생:", str(e))
         return jsonify({'error': str(e)}), 500
 
 # 정적 파일 서빙 (변환된 이미지 접근용)
