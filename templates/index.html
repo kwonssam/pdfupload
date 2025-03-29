@@ -1,36 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>PDF to PNG 변환기</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-  <div class="container">
-    <h1>PDF → PNG 변환 서비스</h1>
-    
-    <!-- 업로드 폼 -->
-    <form id="upload-form" method="post" enctype="multipart/form-data">
-      <input type="file" id="pdf-file" name="pdf_file" accept="application/pdf" required>
-      <button type="submit">업로드 및 변환</button>
-    </form>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("upload-form");
+  const fileInput = document.getElementById("pdf-file");
+  const downloadSection = document.getElementById("download-section");
+  const downloadLink = document.getElementById("download-link");
 
-    <!-- 변환 결과 섹션 -->
-    <div id="result-section" style="display: none;">
-      <p>변환이 완료되었습니다!</p>
-      
-      <!-- 이미지 미리보기 -->
-      <div id="image-preview">
-        <img id="preview-image" src="" alt="변환된 PNG 미리보기">
-      </div>
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault(); // 기본 폼 제출 방지
 
-      <!-- 다운로드 버튼 -->
-      <a id="download-link" href="#" download>
-        <button>PNG 다운로드</button>
-      </a>
-    </div>
-  </div>
+    const file = fileInput.files[0];
+    if (!file) {
+      alert("PDF 파일을 선택해주세요.");
+      return;
+    }
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+    const formData = new FormData();
+    formData.append("pdf_file", file);
+
+    try {
+      const response = await fetch("/convert", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("변환 중 오류가 발생했습니다.");
+      }
+
+      const result = await response.json();
+
+      // 다운로드 링크 업데이트
+      downloadLink.href = result.download_url;
+      downloadSection.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      alert("파일 업로드 또는 변환에 실패했습니다.");
+    }
+  });
+});
