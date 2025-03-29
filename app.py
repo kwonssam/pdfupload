@@ -67,7 +67,78 @@
 
 
 
-from flask import Flask, request, jsonify, send_from_directory, render_template
+# from flask import Flask, request, jsonify, send_from_directory, render_template
+# from werkzeug.utils import secure_filename
+# from pdf2image import convert_from_path
+# import os
+# import uuid
+
+# app = Flask(__name__)
+
+# # 업로드 및 출력 폴더 설정
+# UPLOAD_FOLDER = 'uploads'
+# OUTPUT_FOLDER = 'outputs'
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+
+# # 폴더 없으면 생성
+# os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+# # 홈 페이지
+# @app.route('/')
+# def index():
+#     return render_template('index.html')
+
+# # PDF 변환 엔드포인트
+# @app.route('/convert', methods=['POST'])
+# def convert_pdf():
+#     if 'pdf_file' not in request.files:
+#         return jsonify({'error': '파일이 없습니다.'}), 400
+
+#     file = request.files['pdf_file']
+#     if file.filename == '':
+#         return jsonify({'error': '파일명이 없습니다.'}), 400
+
+#     filename = secure_filename(file.filename)
+#     input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#     file.save(input_path)
+
+#     try:
+#         # 모든 페이지를 이미지로 변환
+#         images = convert_from_path(input_path, dpi=200)
+
+#         image_urls = []
+
+#         for idx, image in enumerate(images):
+#             output_filename = f"{uuid.uuid4().hex}_p{idx+1}.png"
+#             output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+#             image.save(output_path, 'PNG')
+#             image_urls.append(f"/outputs/{output_filename}")
+
+#         return jsonify({'download_urls': image_urls})
+
+#     except Exception as e:
+#         print("PDF 변환 중 오류:", e)
+#         return jsonify({'error': str(e)}), 500
+
+# # 변환된 이미지 제공
+# @app.route('/outputs/<filename>')
+# def serve_image(filename):
+#     return send_from_directory(app.config['OUTPUT_FOLDER'], filename)
+
+# # 정적 파일 제공 (JS, CSS 등)
+# @app.route('/static/<path:filename>')
+# def static_files(filename):
+#     return send_from_directory('static', filename)
+
+# # 로컬 테스트용 실행
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
+
+
+from flask import Flask, request, jsonify, send_file, send_from_directory, render_template
 from werkzeug.utils import secure_filename
 from pdf2image import convert_from_path
 import os
@@ -85,12 +156,12 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# 홈 페이지
+# 홈 페이지 렌더링
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# PDF 변환 엔드포인트
+# PDF → 이미지 변환 엔드포인트
 @app.route('/convert', methods=['POST'])
 def convert_pdf():
     if 'pdf_file' not in request.files:
@@ -105,7 +176,7 @@ def convert_pdf():
     file.save(input_path)
 
     try:
-        # 모든 페이지를 이미지로 변환
+        # PDF의 모든 페이지를 이미지로 변환
         images = convert_from_path(input_path, dpi=200)
 
         image_urls = []
@@ -122,16 +193,17 @@ def convert_pdf():
         print("PDF 변환 중 오류:", e)
         return jsonify({'error': str(e)}), 500
 
-# 변환된 이미지 제공
+# 변환된 이미지 제공 (정확한 MIME 타입 설정)
 @app.route('/outputs/<filename>')
 def serve_image(filename):
-    return send_from_directory(app.config['OUTPUT_FOLDER'], filename)
+    filepath = os.path.join(app.config['OUTPUT_FOLDER'], filename)
+    return send_file(filepath, mimetype='image/png')
 
 # 정적 파일 제공 (JS, CSS 등)
 @app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
 
-# 로컬 테스트용 실행
+# 개발 환경용 실행
 if __name__ == '__main__':
     app.run(debug=True)
